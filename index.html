@@ -526,7 +526,7 @@
     btn.disabled = true;
     setStatus('Küldés folyamatban…');
 
-    	try {
+    			try {
 
 			const response = await fetch(SCRIPT_URL, {
 				method: "POST",
@@ -544,12 +544,15 @@
 			setStatus("Sikeresen elküldve ✓", "ok");
 
 		} catch (err) {
+
 			console.error(err);
 			setStatus("Hiba történt a küldés közben. Próbálja újra.", "err");
+
+		} finally {
+
+			btn.disabled = false;
+
 		}
-    } finally {
-      btn.disabled = false;
-    }
   });
 </script>
 
