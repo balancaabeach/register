@@ -526,18 +526,27 @@
     btn.disabled = true;
     setStatus('Küldés folyamatban…');
 
-    try {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ guests, kuldve: new Date().toISOString() })
-      });
-      // no-cors mode nem engedi kiolvasni a választ, ezért sikeresnek tekintjük,
-      // ha a hálózati kérés nem dobott hibát.
-      setStatus('Sikeresen elküldve ✓', 'ok');
-    } catch (err){
-      setStatus('Hiba történt a küldés közben. Próbálja újra.', 'err');
+    	try {
+
+			const response = await fetch(SCRIPT_URL, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					guests,
+					kuldve: new Date().toISOString()
+				})
+			});
+
+			console.log(await response.text());
+
+			setStatus("Sikeresen elküldve ✓", "ok");
+
+		} catch (err) {
+			console.error(err);
+			setStatus("Hiba történt a küldés közben. Próbálja újra.", "err");
+		}
     } finally {
       btn.disabled = false;
     }
