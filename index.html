@@ -43,7 +43,6 @@
     position:relative;
   }
 
-  /* Letterhead */
   header.letterhead{
     text-align:center;
     padding-bottom:22px;
@@ -105,7 +104,6 @@
     border-radius:50%;
   }
 
-  /* Guest list */
   #guestList{
     display:flex;
     flex-direction:column;
@@ -128,7 +126,6 @@
   }
 
   .guest-card::before{
-    /* perforation line */
     content:"";
     position:absolute;
     top:0; left:24px; right:24px;
@@ -242,7 +239,6 @@
     box-shadow:0 0 0 3px rgba(161,61,43,0.1);
   }
 
-  /* Add guest button */
   .add-row{
     display:flex;
     justify-content:center;
@@ -273,7 +269,6 @@
   }
   .add-btn svg{ width:14px; height:14px; }
 
-  /* Submit */
   .submit-row{
     margin-top:38px;
     border-top:2px solid var(--ink);
@@ -375,7 +370,7 @@
 
 <script>
   // ===== CONFIG =====
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwovQAWgU_hpzTwUulL6MVDaVdtrIzuB0LS2XQORQc-BF63Tv4gq0N73uQjDpWzKIjWEQ/exec";
+  const SHEETDB_URL = "https://sheetdb.io/api/v1/83m1jtfvyydd2";
 
   const guestList = document.getElementById('guestList');
   const addGuestBtn = document.getElementById('addGuestBtn');
@@ -480,7 +475,6 @@
 
   document.getElementById('addGuestBtn').addEventListener('click', createGuestCard);
 
-  // Kezdésként 2 vendég
   createGuestCard();
   createGuestCard();
 
@@ -526,33 +520,37 @@
     btn.disabled = true;
     setStatus('Küldés folyamatban…');
 
-    			try {
+    const rows = guests.map((g, i) => ({
+      'sorszám': i + 1,
+      'név': g.nev,
+      'anyja neve': g.anyjaNeve,
+      'születési hely': g.szuletesiHely,
+      'születési dátum': g.szuletesiDatum,
+      'Állampolgárság': g.allampolgarsag,
+      'Lakcím': g.lakcim,
+      'Személyi igazolvány szám': g.szemelyiIgazolvany
+    }));
 
-			const response = await fetch(SCRIPT_URL, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({
-					guests,
-					kuldve: new Date().toISOString()
-				})
-			});
+    try {
+      const response = await fetch(SHEETDB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: rows })
+      });
 
-			console.log(await response.text());
-
-			setStatus("Sikeresen elküldve ✓", "ok");
-
-		} catch (err) {
-
-			console.error(err);
-			setStatus("Hiba történt a küldés közben. Próbálja újra.", "err");
-
-		} finally {
-
-			btn.disabled = false;
-
-		}
+      if (response.ok) {
+        setStatus('Sikeresen elküldve ✓', 'ok');
+      } else {
+        const errText = await response.text();
+        console.error('SheetDB hiba:', errText);
+        setStatus('Hiba történt a küldés közben. Próbálja újra.', 'err');
+      }
+    } catch (err){
+      console.error(err);
+      setStatus('Hiba történt a küldés közben. Próbálja újra.', 'err');
+    } finally {
+      btn.disabled = false;
+    }
   });
 </script>
 
