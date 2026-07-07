@@ -455,7 +455,7 @@
 
   function renumberGuests(){
     [...guestList.children].forEach((card, i) => {
-      card.querySelector('.guest-num').textContent = String(i+1).padStart(2,'0');
+      card.querySelector('.guest-num').textContent = i + 1;
     });
   }
 
